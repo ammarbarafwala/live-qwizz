@@ -13,13 +13,13 @@ module.exports = (server, db) => {
         let current = null;
     io.on('connection', socket => {
         // when a connection is made - load in the content already present on the server
-        
+        askQuestion()
         function askQuestion(){
             results.correct = 0;
             results.wrong = 0;
             current = {
                 question: db.questions[index],
-                time : new Date()
+                time : new Date().getTime()
             }
             io.emit('refreshQuestion', current)
             index++;
@@ -40,13 +40,14 @@ module.exports = (server, db) => {
             },15000)
         }
         
-        socket.on('answer-question', (answer, user)=>{
+        socket.on('validate', (answer, user)=>{
             if (answer == current.question.answer){
                 results.correct++;
                 user.points++
             } else {
                 results.wrong++
             }
+            io.emit("validated", user)
         })
         // demo code only for sockets + db
         // in production login/user creation should happen with a POST to https endpoint
@@ -65,12 +66,15 @@ module.exports = (server, db) => {
                 id: socket.id,
                 name: userName,
                 avatar : `https://robohash.org/${userName}`,
-                points :  0
+                points :  0,
+                joined : new Date().getTime()
             }
 
             db.users.push(user)
+           
 
-            io.emit('successfulJoin', {player: user, question: current})
+            io.emit('successfulJoin', user)
+            
         }
         })
 
@@ -81,6 +85,9 @@ module.exports = (server, db) => {
         })
 
         socket.on('disconnect', () => {
+            db.users = db.users.filter(user => {
+                return user.id != socket.id
+            })
            
         })
     })

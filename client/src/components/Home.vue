@@ -1,36 +1,59 @@
 <template>
   <div id="app">
       <app/>
-    This is the Home page
-    <div v-if="isConnected">
-      <p>We're connected to the server!</p>
-      <div>{{question.question}}</div>
- 
+    <div v-show="isConnected">
+       <div v-if="loggedin">
+      
+      <div v-if="user"><question v-if="enabled"  :user="user" :q="question"/>
+      <div v-else> Wait for the next Round</div></div>
+      
+      
+      </div>
+      <div v-show="!loggedin">
+        <input type="text" v-model="username"/>
+        <button @click="login()">Login</button>
+      </div>
     </div>
-    <button @click="pingServer()">ping</button>
   </div>
 </template>
 
 <script>
 import App from "./App.vue";
+import Question from "./Question.vue";
 export default {
   name: 'home',
    components : {
-    App
+    App,
+    Question
   },
   data() {
     return {
       isConnected: false,
+      username:'',
       socketMessage: '',
       question: {},
+      timestamp : null,
       user :{},
-      enabled: false
+      loggedin: false
+    }
+  },
+
+  computed:{
+    enabled : function(){
+       
+          return this.user.joined - this.timestamp < 25000
+      
+    },
+    connected : function(){
+     return this.$socket.connected
+     //return true;
     }
   },
 
   sockets: {
     connect() {
       // Fired when the socket connects.
+      
       this.isConnected = true;
     },
 
@@ -38,12 +61,10 @@ export default {
       this.isConnected = false;
     },
 
-    successfulJoin(user, question){
+    successfulJoin(user){
       this.user = user;
-      this.question = question.question
-      if((new Date() - question.time) < 25000) {
-        this.enabled = true;
-      }
+      this.loggedin = true;
+      console.log(user)
     },
 
     // Fired when the server sends something on the "messageChannel" channel.
@@ -52,9 +73,11 @@ export default {
     },
 
    refreshQuestion(data) {
-     this.question = data.question
-     console.log(this.question)
-     this.enabled = false
+     this.question = data.question;
+     this.timestamp = data.time;
+   },
+   validated(user){
+     console.log(user)
    }
   },
 
@@ -63,6 +86,9 @@ export default {
       // Send the "pingServer" event to the server.
       this.$socket.emit('pingServer', 'PING!')
       console.log(this.$socket.id);
+    },
+    login() {
+      this.$socket.emit('join-user', this.username);
     }
   }
 }
