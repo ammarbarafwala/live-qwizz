@@ -2,16 +2,27 @@
 
   <section class="result">
     <h2>Results</h2>
-    <div>Number of users who got it right: <span>{{results.correct}}</span></div>
-    <div>Number of users who got it wrong: <span>{{results.wrong}}</span></div>
+    <p>Correct Answer: <span class="capitalize">{{question.answer}}</span></p>
+       <h3> Players and their choices</h3>
+        <ul>
+          <li>
+            {{result.a}} Player(s) selected A: {{question.options.a}}
+          </li>
+          <li>
+            {{result.b}} Player(s) selected B: {{question.options.b}}
+          </li>
+          <li>
+            {{result.c}} Player(s) selected C: {{question.options.c}}
+          </li>
+        </ul>
   </section>
 
 </template>
 
 <script lang="js">
   export default  {
-    name: 'result',
-    props: ['results'],
+    name: 'Result',
+    props: ['result', 'question'],
     mounted() {
 
     },
@@ -30,7 +41,15 @@
 </script>
 
 <style scoped lang="scss">
-  .result {
+  .capitalize {
+      text-transform: capitalize;
+  }
 
+  h2 {
+    text-align:center;
+  }
+
+  li{ 
+  display:block;
   }
 </style>

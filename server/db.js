@@ -9,7 +9,7 @@ const questions = [
                 c : 10,
             },
         
-        answer : 10
+        answer : 'c'
 
     },
     {
@@ -35,7 +35,7 @@ const questions = [
                 c : 10,
             },
         
-        answer : 30
+        answer : 'b'
 
     },
     {
@@ -48,7 +48,7 @@ const questions = [
                 c : 4,
             },
         
-        answer : 4
+        answer : 'c'
 
     },
     {
@@ -61,7 +61,7 @@ const questions = [
                 c : 12,
             },
         
-        answer : 9
+        answer : 'a'
 
     }
     

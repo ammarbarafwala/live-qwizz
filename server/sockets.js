@@ -3,35 +3,27 @@ module.exports = (server, db) => {
     const io = require('socket.io')(server), moment = require('moment');
     let index = 0;
     let interval = null
-    const results = {
-        correct: 0,
-        wrong: 0
-    };
+    let result = {
+        'a': 0,
+        'b': 0,
+        'c': 0,
+        'n': 0
+    }
     let current = null;
     io.on('connection', socket => {
 
         // when a connection is made - load in the content already present on the server
         
         socket.on('validate', (user) => {
-            if (user.answer == current.question.answer) { 
-                results.correct++;
-                user.points++;
-            } 
-            else {
-                results.wrong++;
-            }
-
-            let i = db.user_list.findIndex(u =>{
-                u.username == user.username
-            })
-            db.user_list[i] = user
-
+            
+           
+            
+            result[user.answer]+=1
+            
             console.log('validate')
-            console.log(db.user_list[i])
 
-            io.emit("refresh-users", db.user_list);
-            io.emit("display-results", results)
-        }); 
+            io.emit("display-results", result);
+        });
         // demo code only for sockets + db
         // in production login/user creation should happen with a POST to https endpoint
         // upon success - revert to websockets
@@ -46,14 +38,17 @@ module.exports = (server, db) => {
                     avatar: `https://robohash.org/${username}`,
                     points: 0,
                     joined: new Date().getTime(),
-                    answer: ''
+                    answer: 'n'
                 }
                 db.user_list.push(user)
                 io.emit('successful-join', user)
-                if(current)
+                if(current){
+                    current.username = username
                     io.emit('refresh-question', current)
+                }
                 else{
-                    current = { 
+                    current = {
+                        username,
                         question: db.questions[index],
                         time: new Date().getTime()+30000
                     }
@@ -65,17 +60,21 @@ module.exports = (server, db) => {
             }
         })
 
-        socket.on('change-question', () => {
+        socket.on('change-question', (username) => {
             if (index >= db.questions.length)
                 index = 0;
-            
+            result = {
+                'a': 0,
+                'b': 0,
+                'c': 0,
+                'n': 0
+            }
             current = {
+                username,
                 question: db.questions[index],
                 time: new Date().getTime()+30000
             }
             index++;
-            results.wrong = 0;
-            results.correct = 0;
             io.emit('refresh-question', current)
         })
 

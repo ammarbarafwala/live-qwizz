@@ -1,9 +1,9 @@
 <template lang="html">
 
   <section class="question">
-    <h1>{{q.question}}</h1>
+    <h1>{{q.question}}?</h1>
       <ul>
-        <li v-for="(value, index) in q.options" @click="validate(value)" v-bind:class="{ 'blue-background': user.answer == value}">
+        <li v-for="(value, index) in q.options" @click="validate(index)" v-bind:class="{ 'blue-background': user.answer == index}">
             <span class="option">{{index}}:</span><span class="answer">{{value}}</span>
         </li>
       </ul>
@@ -29,8 +29,8 @@ import io from "socket.io-client";
       }
     },
     methods: {
-      validate(value){
-        this.$emit('interface', value)
+      validate(index){
+        this.$emit('interface', index)
       }
     },
     computed: {

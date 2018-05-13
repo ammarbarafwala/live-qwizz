@@ -1,19 +1,14 @@
 <template>
   <div>
-
     <section class="box" v-if="logged_in">
       <span v-text="timer" id="timer" v-bind:class="{'green' : timer >= 20, 'red' : timer < 20 && timer >= 16, 'yellow' : timer < 16  }"></span>
       <div v-if="!display_result"><Question v-if="enabled" :user="user" :q="question" @interface="validate"/>
-        <div v-else> Wait for the next Round</div>
+        <div v-else><p class="banner"> Wait for the next round</p></div>
       </div>
       <div v-else>
-        Correct Answer: {{question.answer}}
-        Players and their choices
-        <ul>
-          <li v-for="result in getResults" :key="result.id">
-            <strong>{{ result.username }}</strong> : {{result.answer}}
-          </li>
-        </ul>
+      
+          <Result :result="result"  :question="question"/>
+        
       </div>
     </section>
 
@@ -31,12 +26,14 @@
 
 <script>
 import Question from "./components/Question.vue";
+import Result from "./components/Result.vue";
 import io from "socket.io-client";
 
 export default {
   name: "App",
   components: {
-    Question
+    Question,
+    Result
   },
   data(){
     return{
@@ -53,34 +50,27 @@ export default {
       timestamp: null,
       timer: null,
       interval: null,
-      display_result: false
+      display_result: false,
+      result:{},
+      enabled: false
     }
   },
    watch: {
         now(value) {
             this.timer = this.timestamp - this.now
             if(this.timer <= 0){
+              this.enabled = true
               this.timer = 30
               // Remove interval
               clearInterval(this.interval)
-              this.socket.emit("change-question");
+              this.socket.emit("change-question",this.username);
             }
-            if(this.timer<=15 && !this.display_result){
+            if(this.timer<=15 && !this.display_result && this.enabled){
               this.socket.emit("validate", this.user);
               console.log(this.user)
             }
         }
    },
-
-  computed: {
-    enabled: function() {
-      console.log('enabled')
-      return true
-    },
-    getResults: function(){
-      return this.user_list
-    }
-  },
 
   methods: {
     validate(value){
@@ -98,7 +88,14 @@ export default {
     this.socket.on('refresh-users', (user_list) => {
         this.display_result = true
         this.user_list = user_list
-        console.log(this.user_list)
+    })
+
+    this.socket.on('display-results', (result) => {
+        if(this.enabled){
+          this.display_result = true
+          this.result = result
+          console.log(this.result)
+        }
     })
 
     this.socket.on("successful-join", (user, data) => {
@@ -118,16 +115,18 @@ export default {
       }
     })
 
-    this.socket.on('refresh-question', ({question, time}) =>{
+    this.socket.on('refresh-question', ({username, question, time}) =>{
         console.log('new question')
-        console.log(question)
-        this.user.answer = ''
+        this.user.answer = 'n'
         this.display_result = false
         this.question = question;
         this.timestamp = Math.trunc(time/1000)
         this.interval = setInterval(() => {
             this.now = Math.trunc((new Date()).getTime() / 1000);
         }, 1000);
+        if (username === this.username)
+          this.enabled = (this.timestamp - Math.trunc((new Date()).getTime() / 1000))>20
+        console.log(this.enabled)
     })
   }
 }
@@ -148,6 +147,16 @@ export default {
 }
 .error {
   color: red;
+}
+.banner {
+  padding:10px;
+  font-size:40px;
+  color:#444455;
+  text-shadow: 2px 2px 10px gray;
+  position:relative;
+  top:10px;
+  left:10px;
+  text-align: center;
 }
 #login {
   text-align: center;

@@ -13,17 +13,17 @@
 
    <div class="form-input">
  <label>Option A</label><input type="text" v-model="options.a"/> 
- <input type="radio" name="answer" v-model="answer" v-bind:value="options.a"  /> answer?
+ <input type="radio" name="answer" v-model="answer" value='a'  /> answer?
    </div>
 
     <div class="form-input">
  <label>Option B</label><input type="text" v-model="options.b"/> 
- <input type="radio" name="answer" v-model="answer" v-bind:value="options.b" /> answer?
+ <input type="radio" name="answer" v-model="answer" value='b' /> answer?
     </div>
 
  <div class="form-input">
  <label>Option C</label><input type="text" v-model="options.c"/> 
- <input type="radio" name="answer" v-model="answer" v-bind:value="options.c"  />answer?
+ <input type="radio" name="answer" v-model="answer" value='c'  />answer?
  </div>
 
  <button @click="submit()">Submit Question</button>
@@ -54,7 +54,6 @@ export default {
   name: 'admin',
   data () {
     return {
-      a: "",
      question : "",
      answer: "",
      options:{},
@@ -78,6 +77,9 @@ export default {
       q.answer = this.answer;
       this.question_list.push(q)
       this.socket.emit("update-questions", this.question_list);
+      this.question=""
+      this.answer=""
+      this.options = {}
     },
 
     remove(id) {
