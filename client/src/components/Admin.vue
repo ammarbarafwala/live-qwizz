@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     
-  <div id="question">
+  <div class="question">
     <header class="header"><h3>
       Add a question
     </h3></header>
@@ -29,6 +29,19 @@
  <button @click="submit()">Submit Question</button>
     </section>
   </div>
+  <div class="question">
+    <header class="header"><h3>
+      Question Bank
+    </h3></header>
+    <section class="body">
+      <ol>
+      <li v-for="question in question_list" :key="question.id">
+        <p>{{question.question}}</p>
+        <button @click="remove(question.id)">Remove</button>
+      </li>
+      </ol>
+    </section>
+  </div>
 
 
   </div>
@@ -36,7 +49,6 @@
 
 <script>
  import io from 'socket.io-client';
- const socket = io('http://localhost:3000');
 export default {
 
   name: 'admin',
@@ -45,7 +57,9 @@ export default {
       a: "",
      question : "",
      answer: "",
-     options:{}
+     options:{},
+     question_list : [],
+     socket: io("http://localhost:3000"),
     }
   },
   components : {
@@ -57,18 +71,50 @@ export default {
   methods: {
     submit(){
       const q  = {}
+      let last_id = this.question_list[this.question_list.length-1].id;
+      q.id = last_id + 1;
       q.question = this.question;
       q.options = this.options;
       q.answer = this.answer;
-      socket.emit("save-question", q);
+      this.question_list.push(q)
+      this.socket.emit("update-questions", this.question_list);
+    },
+
+    remove(id) {
+      console.log(this.question_list)
+      console.log(id)
+      this.question_list = this.question_list.filter(q=>{
+        return q.id != id;
+      })
+      console.log(this.question_list)
+        this.socket.emit("update-questions", this.question_list);
     }
   },
+  created() {
+    this.socket.emit("get-questions")
+  },
+   mounted() {
+    
+    this.socket.on('refresh-question-list', (questions) => {
+       this.question_list = questions;
+       console.log(questions)
+    })
+   }
 }
 
 </script>
 <style scoped lang="scss">
 label {
   display:block;
+}
+#app {
+  width:100%;
+  display:flex;
+  flex-flow: row;
+  box-sizing:border-box;
+   position:relative;
+  top: 50px;
+  justify-content: space-around;
 }
 
 textarea {
@@ -81,13 +127,21 @@ textarea {
   margin:1px;
 }
 
-#question {
-  position:relative;
-  left:20%;
-  top: 50px;
-  width:60%;
+li {
+  display: block;
+  padding:2px;
+  background:white;
+  margin-bottom:5px;
+}
+
+.question {
+ 
+  width:45%;
   background:rgb(224, 228, 250);
   text-align:justify;
+  box-sizing:border-box;
+  overflow: scroll;
+  height:500px;
 }
 .body {
   padding:15px 50px;

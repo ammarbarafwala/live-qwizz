@@ -13,10 +13,10 @@ module.exports = (server, db) => {
         // when a connection is made - load in the content already present on the server
         
         socket.on('validate', (user) => {
-            if (user.answer == current.question.answer) {
+            if (user.answer == current.question.answer) { 
                 results.correct++;
                 user.points++;
-            }
+            } 
             else {
                 results.wrong++;
             }
@@ -31,11 +31,11 @@ module.exports = (server, db) => {
 
             io.emit("refresh-users", db.user_list);
             io.emit("display-results", results)
-        });
+        }); 
         // demo code only for sockets + db
         // in production login/user creation should happen with a POST to https endpoint
         // upon success - revert to websockets
-        socket.on('join-user', username => {
+        socket.on('join-user', username => { 
 
             if(db.user_list.find(user => user.username.toUpperCase() === username.toUpperCase()))
                 io.emit('failed-join', {username, msg: 'Username already exists!'})
@@ -77,6 +77,15 @@ module.exports = (server, db) => {
             results.wrong = 0;
             results.correct = 0;
             io.emit('refresh-question', current)
+        })
+
+        socket.on("get-questions", ()=>{
+            io.emit("refresh-question-list", db.questions)
+        })
+
+        socket.on("update-questions", (questions)=>{
+            db.questions = questions;
+            io.emit("refresh-question-list", db.questions)
         })
 
         socket.on('disconnect', () => {
