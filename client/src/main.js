@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import routes from './routes'
-import App from "./components/App.vue"
+import App from "./App.vue"
  import io from 'socket.io-client';
 import VueSocketIO from 'vue-socket.io';
 

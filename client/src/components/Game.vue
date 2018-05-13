@@ -1,6 +1,5 @@
 <template>
-  <div id="app">
-      <app/>
+  <div>
     <div v-show="isConnected">
        <div v-if="loggedin">
       
@@ -18,12 +17,10 @@
 </template>
 
 <script>
-import App from "./App.vue";
 import Question from "./Question.vue";
 export default {
-  name: 'home',
+  name: 'Game',
    components : {
-    App,
     Question
   },
   data() {

@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import App from "./App.vue";
+import App from "../App.vue";
 export default {
 
   name: 'admin',
