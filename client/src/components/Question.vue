@@ -3,7 +3,7 @@
   <section class="question">
     <h1>{{q.question}}</h1>
       <ul>
-        <li v-for="(value, index) in q.options" @click="validate(index)">
+        <li v-for="(value, index) in q.options" @click="validate(value)">
             <span>{{index}}</span><span>{{value}}</span>
         </li>
       </ul>
@@ -12,6 +12,8 @@
 </template>
 
 <script lang="js">
+import io from "socket.io-client";
+
   export default  {
     
     name: 'question',
@@ -21,13 +23,13 @@
     },
     data() {
       return {
-
+        socket: io("http://localhost:3000"),
+        answer:''
       }
     },
     methods: {
-      validate(index){
-        console.log("yes")
-        this.$socket.emit("validate", index, this.user)
+      validate(value){
+        this.$emit('interface', value)
       }
     },
     computed: {

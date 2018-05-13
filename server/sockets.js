@@ -10,18 +10,26 @@ module.exports = (server, db) => {
     let current = null;
     io.on('connection', socket => {
 
-        socket.emit('refresh-users', db.user_list)
         // when a connection is made - load in the content already present on the server
         
-        socket.on('validate', (answer, user) => {
-            if (answer == current.question.answer) {
+        socket.on('validate', (user) => {
+            if (user.answer == current.question.answer) {
                 results.correct++;
                 user.points++;
             }
             else {
                 results.wrong++;
             }
-            io.emit("validated", user);
+
+            let i = db.user_list.findIndex(u =>{
+                u.username == user.username
+            })
+            db.user_list[i] = user
+
+            console.log('validate')
+            console.log(db.user_list[i])
+
+            io.emit("refresh-users", db.user_list);
         });
         // demo code only for sockets + db
         // in production login/user creation should happen with a POST to https endpoint
@@ -36,7 +44,8 @@ module.exports = (server, db) => {
                     username,
                     avatar: `https://robohash.org/${username}`,
                     points: 0,
-                    joined: new Date().getTime()
+                    joined: new Date().getTime(),
+                    answer: ''
                 }
                 db.user_list.push(user)
                 io.emit('successful-join', user)
@@ -45,17 +54,18 @@ module.exports = (server, db) => {
                 else{
                     current = { 
                         question: db.questions[index],
-                        time: new Date().getTime()+10000
+                        time: new Date().getTime()+30000
                     }
                     index++;
                     io.emit('refresh-question', current)
                     console.log('else')
+                    console.log(db.user_list)
                 }
             }
         })
 
         socket.on('change-question', () => {
-            if (index == db.questions.length)
+            if (index >= db.questions.length)
                 index = 0;
             
             current = {
