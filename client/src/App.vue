@@ -1,17 +1,22 @@
 <template>
   <div>
-
     <section class="box" v-if="logged_in">
       <span v-text="timer"></span>
       <div v-if="!display_result"><Question v-if="enabled" :user="user" :q="question" @interface="validate"/>
         <div v-else> Wait for the next Round</div>
       </div>
       <div v-else>
-        Correct Answer: {{question.answer}}
+        Correct Answer: {{question.answer}}<br/>
         Players and their choices
         <ul>
-          <li v-for="result in getResults" :key="result.id">
-            <strong>{{ result.username }}</strong> : {{result.answer}}
+          <li>
+            {{result.a}} Players selected {{question.options.a}}
+          </li>
+          <li>
+            {{result.b}} Players selected {{question.options.b}}
+          </li>
+          <li>
+            {{result.c}} Players selected {{question.options.c}}
           </li>
         </ul>
       </div>
@@ -53,34 +58,27 @@ export default {
       timestamp: null,
       timer: null,
       interval: null,
-      display_result: false
+      display_result: false,
+      result:{},
+      enabled: false
     }
   },
    watch: {
         now(value) {
             this.timer = this.timestamp - this.now
             if(this.timer <= 0){
+              this.enabled = true
               this.timer = 30
               // Remove interval
               clearInterval(this.interval)
-              this.socket.emit("change-question");
+              this.socket.emit("change-question",this.username);
             }
-            if(this.timer<=20 && !this.display_result){
+            if(this.timer<=15 && !this.display_result && this.enabled){
               this.socket.emit("validate", this.user);
               console.log(this.user)
             }
         }
    },
-
-  computed: {
-    enabled: function() {
-      console.log('enabled')
-      return true
-    },
-    getResults: function(){
-      return this.user_list
-    }
-  },
 
   methods: {
     validate(value){
@@ -98,7 +96,14 @@ export default {
     this.socket.on('refresh-users', (user_list) => {
         this.display_result = true
         this.user_list = user_list
-        console.log(this.user_list)
+    })
+
+    this.socket.on('display-results', (result) => {
+        if(this.enabled){
+          this.display_result = true
+          this.result = result
+          console.log(this.result)
+        }
     })
 
     this.socket.on("successful-join", (user, data) => {
@@ -118,9 +123,8 @@ export default {
       }
     })
 
-    this.socket.on('refresh-question', ({question, time}) =>{
+    this.socket.on('refresh-question', ({username, question, time}) =>{
         console.log('new question')
-        console.log(question)
         this.user.current_answer = ''
         this.display_result = false
         this.question = question;
@@ -128,6 +132,9 @@ export default {
         this.interval = setInterval(() => {
             this.now = Math.trunc((new Date()).getTime() / 1000);
         }, 1000);
+        if (username === this.username)
+          this.enabled = (this.timestamp - Math.trunc((new Date()).getTime() / 1000))>20
+        console.log(this.enabled)
     })
   }
 }

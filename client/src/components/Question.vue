@@ -3,7 +3,7 @@
   <section class="question">
     <h1>{{q.question}}</h1>
       <ul>
-        <li v-for="(value, index) in q.options" @click="validate(value)">
+        <li v-for="(value, index) in q.options" @click="validate(index)">
             <span>{{index}}</span><span>{{value}}</span>
         </li>
       </ul>
