@@ -14,8 +14,7 @@
     "page": "^1.8.6",
     "socket.io": "^2.1.0",
     "socket.io-client": "^2.1.0",
-    "vue": "^2.5.11",
-    "vue-socket.io": "^2.1.1-b"
+    "vue": "^2.5.11"
   },
   "browserslist": [
     "> 1%",

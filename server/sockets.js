@@ -1,94 +1,80 @@
-
 module.exports = (server, db) => {
-    const
-        io = require('socket.io')(server),
-        moment = require('moment')
 
-        let time = null;
-        let index = 0;
-        let results = {
-            correct : 0,
-            wrong : 0
-        }
-        let current = null;
+    const io = require('socket.io')(server), moment = require('moment');
+    let index = 0;
+    let interval = null
+    const results = {
+        correct: 0,
+        wrong: 0
+    };
+    let current = null;
     io.on('connection', socket => {
+
+        socket.emit('refresh-users', db.user_list)
         // when a connection is made - load in the content already present on the server
-        askQuestion()
-        function askQuestion(){
-            results.correct = 0;
-            results.wrong = 0;
-            current = {
-                question: db.questions[index],
-                time : new Date().getTime()
-            }
-            io.emit('refreshQuestion', current)
-            index++;
-            if (index == db.questions.length) {
-                index = 0;
-            }
-
-            setTimeout(function(){
-                showResults();
-            },15000)
-        }
-
-        function showResults(){
-            io.emit("showResults", results)
-
-            setTimeout(function(){
-                askQuestion();
-            },15000)
-        }
         
-        socket.on('validate', (answer, user)=>{
-            if (answer == current.question.answer){
+        socket.on('validate', (answer, user) => {
+            if (answer == current.question.answer) {
                 results.correct++;
-                user.points++
-            } else {
-                results.wrong++
+                user.points++;
             }
-            io.emit("validated", user)
-        })
+            else {
+                results.wrong++;
+            }
+            io.emit("validated", user);
+        });
         // demo code only for sockets + db
         // in production login/user creation should happen with a POST to https endpoint
         // upon success - revert to websockets
-        socket.on('join-user', (userName) => {
-            const check = db.users.filter((user)=>{
-                return user.name.toLowerCase() == userName.toLowerCase()
-            })
-            if (check.length > 0) {
-                io.emit('failedJoin', {id:socket.id, message:`Username ${userName} already exists!`} )
-                return;
-            } else if(!new RegExp(/\S+/).test(userName)){
-                io.emit('failedJoin', {id:socket.id, message:`Username must include a non-whitespace character!`} )
-            } else{
-            const user = {
-                id: socket.id,
-                name: userName,
-                avatar : `https://robohash.org/${userName}`,
-                points :  0,
-                joined : new Date().getTime()
+        socket.on('join-user', username => {
+
+            if(db.user_list.find(user => user.username.toUpperCase() === username.toUpperCase()))
+                io.emit('failed-join', {username, msg: 'Username already exists!'})
+            else{
+                const user = {
+                    id: socket.id,
+                    username,
+                    avatar: `https://robohash.org/${username}`,
+                    points: 0,
+                    joined: new Date().getTime()
+                }
+                db.user_list.push(user)
+                io.emit('successful-join', user)
+                if(current)
+                    io.emit('refresh-question', current)
+                else{
+                    current = { 
+                        question: db.questions[index],
+                        time: new Date().getTime()+10000
+                    }
+                    index++;
+                    io.emit('refresh-question', current)
+                    console.log('else')
+                }
             }
-
-            db.users.push(user)
-           
-
-            io.emit('successfulJoin', user)
-            
-        }
         })
 
-       
-
-        socket.on('send-message', data => {
-           
+        socket.on('change-question', () => {
+            if (index == db.questions.length)
+                index = 0;
+            
+            current = {
+                question: db.questions[index],
+                time: new Date().getTime()+30000
+            }
+            index++;
+            io.emit('refresh-question', current)
         })
 
         socket.on('disconnect', () => {
-            db.users = db.users.filter(user => {
+            db.user_list = db.user_list.filter(user => {
                 return user.id != socket.id
             })
-           
+            if(!db.user_list.length){
+                current = null
+                clearInterval(interval)
+            }
+            io.emit('refresh-users', db.user_list)
         })
     })
 }

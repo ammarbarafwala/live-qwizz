@@ -67,9 +67,9 @@ const questions = [
     
 ]
 
-const users = []
+const user_list = []
 
 module.exports = {
     questions,
-    users
+    user_list
 }

@@ -7,8 +7,5 @@ const
     server = require('http').Server(app)
 
     const db = require('./db')
-    require('./sockets')(server, db)
-
-
-
+require('./sockets')(server, db)
 server.listen(3000)
