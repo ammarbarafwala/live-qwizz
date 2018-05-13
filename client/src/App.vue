@@ -2,7 +2,7 @@
   <div>
 
     <section class="box" v-if="logged_in">
-      <span v-text="timer"></span>
+      <span v-text="timer" id="timer" v-bind:class="{'green' : timer >= 20, 'red' : timer < 20 && timer >= 16, 'yellow' : timer < 16  }"></span>
       <div v-if="!display_result"><Question v-if="enabled" :user="user" :q="question" @interface="validate"/>
         <div v-else> Wait for the next Round</div>
       </div>
@@ -65,7 +65,7 @@ export default {
               clearInterval(this.interval)
               this.socket.emit("change-question");
             }
-            if(this.timer<=20 && !this.display_result){
+            if(this.timer<=15 && !this.display_result){
               this.socket.emit("validate", this.user);
               console.log(this.user)
             }
@@ -103,7 +103,7 @@ export default {
 
     this.socket.on("successful-join", (user, data) => {
       if (user.username === this.username) {
-        console.log('joined')
+        this.login_error = false;
         this.user = user;
         this.logged_in = true;
       }
@@ -111,7 +111,7 @@ export default {
     });
 
     this.socket.on('failed-join', ({username, msg}) => {
-      console.log('failed')
+     this.login_error = true;
       if (username === this.username) {
         console.log(msg)
         this.error_message = msg
@@ -121,7 +121,7 @@ export default {
     this.socket.on('refresh-question', ({question, time}) =>{
         console.log('new question')
         console.log(question)
-        this.user.current_answer = ''
+        this.user.answer = ''
         this.display_result = false
         this.question = question;
         this.timestamp = Math.trunc(time/1000)
@@ -152,5 +152,27 @@ export default {
 #login {
   text-align: center;
   padding: 5px;
+}
+
+.green {
+  background-color:#55ff55;
+}
+.red {
+  background-color:#ff5555;
+}
+.yellow {
+  background-color:#eeee55;
+}
+
+#timer {
+  padding:10px;
+  display: inline-block;
+  width: 20px;
+  text-align:center;
+  position:absolute;
+  top:0;
+  right:0;
+  border:1px solid gray;
+  border-radius:20px;
 }
 </style>

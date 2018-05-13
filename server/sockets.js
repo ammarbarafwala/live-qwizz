@@ -30,6 +30,7 @@ module.exports = (server, db) => {
             console.log(db.user_list[i])
 
             io.emit("refresh-users", db.user_list);
+            io.emit("display-results", results)
         });
         // demo code only for sockets + db
         // in production login/user creation should happen with a POST to https endpoint
@@ -73,6 +74,8 @@ module.exports = (server, db) => {
                 time: new Date().getTime()+30000
             }
             index++;
+            results.wrong = 0;
+            results.correct = 0;
             io.emit('refresh-question', current)
         })
 
