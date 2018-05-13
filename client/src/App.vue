@@ -2,13 +2,12 @@
   <div>
     <section class="box" v-if="logged_in">
       <span v-text="timer" id="timer" v-bind:class="{'green' : timer >= 20, 'red' : timer < 20 && timer >= 16, 'yellow' : timer < 16  }"></span>
-      <div v-if="!display_result"><Question v-if="enabled" :user="user" :q="question" @interface="validate"/>
+      <div v-if="!display_result">
+        <Question v-if="enabled" :user="user" :q="question" @interface="validate"/>
         <div v-else><p class="banner"> Wait for the next round</p></div>
       </div>
       <div v-else>
-      
-          <Result :result="result"  :question="question"/>
-        
+        <Result :result="result"  :question="question"/>
       </div>
     </section>
 
@@ -59,13 +58,13 @@ export default {
         now(value) {
             this.timer = this.timestamp - this.now
             if(this.timer <= 0){
-              this.enabled = true
               this.timer = 30
               // Remove interval
               clearInterval(this.interval)
               this.socket.emit("change-question",this.username);
             }
             if(this.timer<=15 && !this.display_result && this.enabled){
+              console.log('hi')
               this.socket.emit("validate", this.user);
               console.log(this.user)
             }
@@ -90,9 +89,10 @@ export default {
         this.user_list = user_list
     })
 
-    this.socket.on('display-results', (result) => {
+    this.socket.on('display-results', ({result,username}) => {
         if(this.enabled){
-          this.display_result = true
+          if(username == this.username)
+            this.display_result = true
           this.result = result
           console.log(this.result)
         }
@@ -117,6 +117,7 @@ export default {
 
     this.socket.on('refresh-question', ({username, question, time}) =>{
         console.log('new question')
+        this.enabled = true
         this.user.answer = 'n'
         this.display_result = false
         this.question = question;

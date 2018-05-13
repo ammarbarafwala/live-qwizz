@@ -61,12 +61,6 @@ export default {
      socket: io("http://localhost:3000"),
     }
   },
-  components : {
-    
-  },
-  sockets :{
-
-  },
   methods: {
     submit(){
       const q  = {}

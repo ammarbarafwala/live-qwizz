@@ -17,12 +17,12 @@ module.exports = (server, db) => {
         socket.on('validate', (user) => {
             
            
-            
+            console.log(user.answer)
             result[user.answer]+=1
-            
+            console.log(result[user.answer])
             console.log('validate')
 
-            io.emit("display-results", result);
+            io.emit("display-results", {result, username: user.username});
         });
         // demo code only for sockets + db
         // in production login/user creation should happen with a POST to https endpoint

@@ -12,7 +12,6 @@
 </template>
 
 <script lang="js">
-import io from "socket.io-client";
 
   export default  {
     
@@ -23,8 +22,6 @@ import io from "socket.io-client";
     },
     data() {
       return {
-        socket: io("http://localhost:3000"),
-        answer:'',
         validating:false
       }
     },
@@ -32,12 +29,6 @@ import io from "socket.io-client";
       validate(index){
         this.$emit('interface', index)
       }
-    },
-    computed: {
-
-    },
-    sockets :{
-
     }
 }
 </script>

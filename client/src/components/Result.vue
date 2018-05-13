@@ -33,9 +33,6 @@
     },
     methods: {
 
-    },
-    computed: {
-
     }
 }
 </script>
