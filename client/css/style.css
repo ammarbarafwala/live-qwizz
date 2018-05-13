@@ -1,135 +1,81 @@
-/* GENERAL STYLES */
-#chat-app {
-    background: #efefef;
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+  box-sizing: border-box;
 }
 
-hr {
-    border-color: #3e3e6d;
+h1, h2,h3 {
+  font-weight: normal;
 }
 
-/* LEFT COLUMN STYLES */
-.col.s3 {
-    background: #2a2f43;
-    border-top: 10px solid #278ca8;
-    color: #ffffff;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 15px;
-    height: 100vh;
-    padding: 0;
-    -webkit-box-shadow: 5px 0px 15px -5px rgba(0, 0, 0, 0.5);
-    -moz-box-shadow: 5px 0px 15px -5px rgba(0, 0, 0, 0.5);
-    box-shadow: 5px 0px 15px -5px rgba(0, 0, 0, 0.5);
+ul {
+  list-style-type: none;
+  padding: 0;
 }
 
-.col.s3 input[type=text]:not(.browser-default) {
-    color: #FFFFFF;
-    font-family: 'Rajdhani', sans-serif;
+li {
+  display: inline-block;
+  margin: 0 10px;
 }
-
-.col.s3 input[type=text]:not(.browser-default):focus:not([readonly]) {
-    border-bottom: 1px solid #278ca8;
-    box-shadow: 0 1px 0 0 #278ca8;
-}
-
-.col.s3 button {
-    background: #278ca8;
-}
-
-
-/* RIGHT COLUMN STYLES */
-.col.s9 input[type=text]:not(.browser-default) {
-    color: #111111;
-    font-family: 'Rajdhani', sans-serif;
-}
-
-.col.s9 input[type=text]:not(.browser-default):focus:not([readonly]) {
-    border-bottom: 1px solid #2a2f43;
-    box-shadow: 0 1px 0 0 #2a2f43;
-}
-
-.col.s9 button {
-    background: #2a2f43;
-}
-
-/* USER LIST STYLES */
-
-.user-login {
-    position: absolute;
-    bottom: 10px;
-}
-.user-list, .user-login {
-    padding: 10px .75rem;
-}
-
-.user-list ul {
-    margin: 0;
-}
-.user-list h6 {
-    padding: 10px 0 10px 0;
-}
-
-.user-list span {
-    color: #ffffff;
-    padding: 0 0 0 2px;
-}
-
-.user-list img {
-    background: #ffffff;
-    vertical-align: middle;
-}
-
-.failed {
-    color: #fb78ad;
-}
-
-/* CHAT BOX STYLES */
-.chat-box {
-    background: #FFFFFF;
-    border-radius: 4px;
-    margin: 25px 5px;
-    min-height: 500px;
-    max-height: 500px;
-    padding: 10px;
-    overflow-y: auto;
-}
-
-.chat-box strong {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: bold;
-    font-size: 17px;
-}
-
-.chat-box small {
-    color: #AAAAAA;
-}
-
-.chat-box p {
-    border-bottom: #efefef solid 1px;
-    padding-bottom: 12px;
-}
-
-.chat-box img {
-    border: 1px solid #d0d0d0;
-    vertical-align: middle;
-}
-
-/* ME STYLES */
-
-.me {
-    background: #278ca8;
-    border-bottom: 1px solid #3e3e6d;
+footer{
+    position:relative;
+    top:60px;
+    background:hsl(225, 100%, 20%);
+    display:flex;
+    width:100%;
+    left:0;
+    padding:10px;
     text-align: center;
-    -webkit-box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.2);
-    box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.2);
 }
 
-.me h5 {
-    padding-top: 0px;
-    margin-top: 0px;
+footer li {
+display:block;
 }
 
-.me img {
-    background: #FFFFFF;
+footer section {
+    width:33%;
+    box-sizing: border-box;
+    color:white;
+    
 }
 
+.border {
+    border:2px ridge grey;
+    height:100%;
+}
+
+header {
+    position:relative;
+    background:hsl(225, 100%, 20%);
+    padding:5px 10px;
+    width:100%;
+    box-sizing:border-box;
+    top:0;
+    color:white;
+}
+
+header h1{
+    position: relative;
+    left:4%;
+    width:70%;
+}
+
+#links {
+    position:absolute;
+    width:25%;
+    top:25%;
+    height:75%;
+    right:0;
+    text-align: center;
+}
+
+
+
+a {
+  color: #c7dad1;
+  text-decoration:none
+}

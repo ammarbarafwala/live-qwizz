@@ -57,10 +57,10 @@ module.exports = (server, db) => {
                 return user.name.toLowerCase() == userName.toLowerCase()
             })
             if (check.length > 0) {
-                io.emit('failed-join', {id:socket.id, message:`Username ${userName} already exists!`} )
+                io.emit('failedJoin', {id:socket.id, message:`Username ${userName} already exists!`} )
                 return;
             } else if(!new RegExp(/\S+/).test(userName)){
-                io.emit('failed-join', {id:socket.id, message:`Username must include a non-whitespace character!`} )
+                io.emit('failedJoin', {id:socket.id, message:`Username must include a non-whitespace character!`} )
             } else{
             const user = {
                 id: socket.id,
