@@ -34,12 +34,13 @@
       Question Bank
     </h3></header>
     <section class="body">
-      <ol>
+      <ul>
       <li v-for="question in question_list" :key="question.id">
-        <p>{{question.question}}</p>
+        <p>Question: {{question.question}}</p>
+        <ol>Options: <li v-for="(value, index) in question.options" :key="index">{{value}}</li></ol>
         <button @click="remove(question.id)">Remove</button>
       </li>
-      </ol>
+      </ul>
     </section>
   </div>
 
@@ -69,21 +70,14 @@ export default {
       q.question = this.question;
       q.options = this.options;
       q.answer = this.answer;
-      this.question_list.push(q)
-      this.socket.emit("update-questions", this.question_list);
+      this.socket.emit("update-questions", q);
       this.question=""
       this.answer=""
       this.options = {}
     },
 
     remove(id) {
-      console.log(this.question_list)
-      console.log(id)
-      this.question_list = this.question_list.filter(q=>{
-        return q.id != id;
-      })
-      console.log(this.question_list)
-        this.socket.emit("update-questions", this.question_list);
+        this.socket.emit("remove-question", id);
     }
   },
   created() {
@@ -123,12 +117,17 @@ textarea {
   margin:1px;
 }
 
-li {
+
+
+  li {
   display: block;
   padding:2px;
   background:white;
   margin-bottom:5px;
 }
+
+
+
 
 .question {
  
