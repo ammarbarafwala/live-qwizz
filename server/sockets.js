@@ -82,8 +82,15 @@ module.exports = (server, db) => {
             io.emit("refresh-question-list", db.questions)
         })
 
-        socket.on("update-questions", (questions)=>{
-            db.questions = questions;
+        socket.on("update-questions", (question)=>{
+            db.questions.push(question)
+            io.emit("refresh-question-list", db.questions)
+        })
+
+        socket.on("remove-question", (id)=>{
+            db.questions = db.questions.filter(q=>{
+                return q.id != id;
+            })
             io.emit("refresh-question-list", db.questions)
         })
 
