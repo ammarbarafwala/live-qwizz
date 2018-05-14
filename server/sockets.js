@@ -1,34 +1,53 @@
 module.exports = (server, db) => {
 
     const io = require('socket.io')(server), moment = require('moment');
-    let index = 0;
-    let interval = null
-    let result = {
-        'a': 0,
-        'b': 0,
-        'c': 0,
-        'n': 0
-    }
-    let current = null;
+
+    let index = 0,
+        current = null,
+        result = {
+            'a': 0,
+            'b': 0,
+            'c': 0,
+            'n': 0
+        }
+    const delay = 30000
+    
     io.on('connection', socket => {
 
         // when a connection is made - load in the content already present on the server
+
+        const getCurrentTime = () => new Date().getTime()
+
+        const initializeData = () => {
+            
+            if(!current){
+                result = {
+                    'a': 0,
+                    'b': 0,
+                    'c': 0,
+                    'n': 0
+                }
+                if (index >= db.questions.length)
+                    index = 0
+                current = {
+                    question: db.questions[index],
+                    time: getCurrentTime() + delay
+                }
+                console.log('index')
+                index++
+            }
+            return current
+        }
         
         socket.on('validate', (user) => {
-            
-           
-            console.log(user.answer)
             result[user.answer]+=1
-            console.log(result[user.answer])
-            console.log('validate')
-
             io.emit("display-results", {result, username: user.username});
         });
         // demo code only for sockets + db
         // in production login/user creation should happen with a POST to https endpoint
         // upon success - revert to websockets
         socket.on('join-user', username => { 
-
+            
             if(db.user_list.find(user => user.username.toUpperCase() === username.toUpperCase()))
                 io.emit('failed-join', {username, msg: 'Username already exists!'})
             else{
@@ -36,46 +55,17 @@ module.exports = (server, db) => {
                     id: socket.id,
                     username,
                     avatar: `https://robohash.org/${username}`,
-                    points: 0,
-                    joined: new Date().getTime(),
                     answer: 'n'
                 }
                 db.user_list.push(user)
-                io.emit('successful-join', user)
-                if(current){
-                    current.username = username
-                    io.emit('refresh-question', current)
-                }
-                else{
-                    current = {
-                        username,
-                        question: db.questions[index],
-                        time: new Date().getTime()+30000
-                    }
-                    index++;
-                    io.emit('refresh-question', current)
-                    console.log('else')
-                    console.log(db.user_list)
-                }
+                io.emit('successful-join', {user, current: initializeData()})
             }
         })
 
         socket.on('change-question', (username) => {
-            if (index >= db.questions.length)
-                index = 0;
-            result = {
-                'a': 0,
-                'b': 0,
-                'c': 0,
-                'n': 0
-            }
-            current = {
-                username,
-                question: db.questions[index],
-                time: new Date().getTime()+30000
-            }
-            index++;
-            io.emit('refresh-question', current)
+            if(current && current.time < getCurrentTime())
+                current = null
+            io.emit('refresh-question', initializeData())
         })
 
         socket.on("get-questions", ()=>{
@@ -100,9 +90,7 @@ module.exports = (server, db) => {
             })
             if(!db.user_list.length){
                 current = null
-                clearInterval(interval)
             }
-            io.emit('refresh-users', db.user_list)
         })
     })
 }

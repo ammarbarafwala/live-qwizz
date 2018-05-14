@@ -2,7 +2,12 @@
   "name": "final",
   "description": "A Vue.js project",
   "version": "1.0.0",
-  "author": "kennybky <kennybky92@gmail.com>",
+  "author": "Ammar Barafwala",
+  "contributors": [
+    "Adekola Togunluju",
+    "Jaishri Bhagat",
+    "Parth Tanna"
+  ],
   "license": "MIT",
   "private": true,
   "scripts": {

@@ -16,7 +16,7 @@
         <h3>Enter a username to play the Game</h3>
         <input type="text" v-model="username"/>
         <button @click="login()">Login</button>
-        <p class="error" v-show="login_error">{{error_message}}</p>
+        <p class="error" v-show="login_error">{{socket_message}}</p>
       </div>
     </section>
 
@@ -43,7 +43,6 @@ export default {
       user_list: [],
       logged_in: false,
       login_error: false,
-      error_message: '',
       socket: io("http://localhost:3000"),
       now: null,
       timestamp: null,
@@ -55,7 +54,7 @@ export default {
     }
   },
    watch: {
-        now(value) {
+        now() {
             this.timer = this.timestamp - this.now
             if(this.timer <= 0){
               this.timer = 30
@@ -63,10 +62,9 @@ export default {
               clearInterval(this.interval)
               this.socket.emit("change-question",this.username);
             }
+
             if(this.timer<=15 && !this.display_result && this.enabled){
-              console.log('hi')
               this.socket.emit("validate", this.user);
-              console.log(this.user)
             }
         }
    },
@@ -74,60 +72,54 @@ export default {
   methods: {
     validate(value){
       this.user.answer = value
-      console.log(this.user.answer)
     },
     login() {
-      console.log("login");
       this.socket.emit("join-user", this.username);
     }
   },
 
   mounted() {
-    
-    this.socket.on('refresh-users', (user_list) => {
-        this.display_result = true
-        this.user_list = user_list
-    })
+
+    const getCurrentSeconds = () => Math.trunc( new Date().getTime() / 1000)
+
+    const refreshQuestion = ({question, time}) => {
+      this.display_result = false
+      this.user.answer = 'n'
+      this.question = question
+      this.timestamp = Math.trunc(time/1000)
+      this.interval = setInterval(() => {
+            this.now = getCurrentSeconds()
+      }, 1000)
+    }
 
     this.socket.on('display-results', ({result,username}) => {
         if(this.enabled){
           if(username == this.username)
             this.display_result = true
           this.result = result
-          console.log(this.result)
         }
     })
 
-    this.socket.on("successful-join", (user, data) => {
+    this.socket.on("successful-join", ({user, current}) => {
       if (user.username === this.username) {
         this.login_error = false;
         this.user = user;
         this.logged_in = true;
+        refreshQuestion(current)
+        this.enabled = (this.timestamp - getCurrentSeconds())>20
       }
-      this.user_list.push(user)
     });
 
     this.socket.on('failed-join', ({username, msg}) => {
      this.login_error = true;
       if (username === this.username) {
-        console.log(msg)
-        this.error_message = msg
+        this.socket_message = msg
       }
     })
 
-    this.socket.on('refresh-question', ({username, question, time}) =>{
-        console.log('new question')
-        this.enabled = true
-        this.user.answer = 'n'
-        this.display_result = false
-        this.question = question;
-        this.timestamp = Math.trunc(time/1000)
-        this.interval = setInterval(() => {
-            this.now = Math.trunc((new Date()).getTime() / 1000);
-        }, 1000);
-        if (username === this.username)
-          this.enabled = (this.timestamp - Math.trunc((new Date()).getTime() / 1000))>20
-        console.log(this.enabled)
+    this.socket.on('refresh-question', (current) =>{
+      this.enabled = true
+      refreshQuestion(current)
     })
   }
 }
